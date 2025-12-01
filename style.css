@@ -29,7 +29,7 @@
 }
 
 body {
-    font-family: 'Timetravler', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color var(--transition-speed), color var(--transition-speed);
@@ -52,8 +52,8 @@ body {
 }
 
 .clock-text {
+    font-family: 'Timetravler', sans-serif;
     font-size: 12rem;
-    font-weight: 200; /* Thin minimalist font weight */
     font-variant-numeric: tabular-nums; /* Keeps numbers from jumping */
     margin-bottom: 2rem;
 }
