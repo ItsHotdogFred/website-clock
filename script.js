@@ -11,6 +11,14 @@ const themeBtn = document.getElementById('theme-toggle');
 
 // Initialize
 function init() {
+    if (localStorage.getItem('is24hour') !== null) {
+        is24Hour = localStorage.getItem('is24hour') === 'true'
+    }
+    if (localStorage.getItem('theme') !== null) {
+        if (localStorage.getItem('theme') === 'Dark Mode') {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+    }
     // Attempt to detect user's actual timezone
     try {
         const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -49,6 +57,7 @@ function updateClock() {
 formatBtn.addEventListener('click', () => {
     is24Hour = !is24Hour;
     formatBtn.textContent = is24Hour ? 'Switch to 12h' : 'Switch to 24h';
+    localStorage.setItem('is24hour', is24Hour)
     updateClock();
 });
 
@@ -60,9 +69,11 @@ themeBtn.addEventListener('click', () => {
     if (isDark) {
         body.removeAttribute('data-theme');
         themeBtn.textContent = 'Dark Mode';
+        localStorage.setItem('theme', 'Light Mode')
     } else {
         body.setAttribute('data-theme', 'dark');
         themeBtn.textContent = 'Light Mode';
+        localStorage.setItem('theme', 'Dark Mode')
     }
 });
 
