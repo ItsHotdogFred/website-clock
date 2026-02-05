@@ -102,7 +102,6 @@ async function playTick() {
 async function randomScreamingMan() {
     setTimeout(() => {
         const number = Math.random()
-
         if (number <= 0.010) {
             manaudio.play()
         }
