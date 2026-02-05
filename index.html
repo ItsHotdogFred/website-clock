@@ -18,8 +18,21 @@
         <div class="controls">
             <button id="format-toggle" class="btn">Switch to 24h</button>
             <button id="theme-toggle" class="btn">Dark Mode</button>
+            <button onclick="playTick()" class="btn">Play Sound</button>
         </div>
     </div>
+
+    <audio loop id="tick-audio">
+        <source src="TickToc.wav" type="audio/wav">
+    </audio>
+    <audio loop id="background-audio">
+        <source src="background.wav" type="audio/wav">
+    </audio>
+    <audio id="man-audio">
+        <source src="manScreaming.mp3" type="audio/wav">
+    </audio>
+
+    <button onclick="playTick()">Unmute ticking sound</button>
 
     <script src="script.js"></script>
 </body>

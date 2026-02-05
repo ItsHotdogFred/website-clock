@@ -8,6 +8,9 @@ const clockEl = document.getElementById('clock');
 const locationEl = document.getElementById('location');
 const formatBtn = document.getElementById('format-toggle');
 const themeBtn = document.getElementById('theme-toggle');
+const tickaudio = document.getElementById('tick-audio')
+const backgroundaudio = document.getElementById('background-audio')
+const manaudio = document.getElementById('man-audio')
 
 // Initialize
 function init() {
@@ -51,6 +54,8 @@ function updateClock() {
 
     const formatter = new Intl.DateTimeFormat('en-US', options);
     clockEl.textContent = formatter.format(now);
+
+    randomScreamingMan()
 }
 
 // Format Toggle Handler
@@ -76,6 +81,33 @@ themeBtn.addEventListener('click', () => {
         localStorage.setItem('theme', 'Dark Mode')
     }
 });
+
+async function playTick() {
+
+    if (backgroundaudio.paused) {
+        backgroundaudio.play()
+    }
+
+    const now = new Date();
+    const currentMilliseconds = now.getMilliseconds();
+    const millisecondsUntillNextSecond = 1000 - currentMilliseconds
+    setTimeout(() => {
+        if (tickaudio.paused) {
+            tickaudio.play()
+        }
+    }, millisecondsUntillNextSecond)
+
+}
+
+async function randomScreamingMan() {
+    setTimeout(() => {
+        const number = Math.random()
+
+        if (number <= 0.010) {
+            manaudio.play()
+        }
+    }, 1000)
+}
 
 // Start the app
 init();
