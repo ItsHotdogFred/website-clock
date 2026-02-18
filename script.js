@@ -2,6 +2,16 @@
 let is24Hour = false;
 let currentTimezone = 'Pacific/Auckland'; // Default to NZST
 let timeInterval;
+let tickIntervalId;
+let tickStartTimeoutId;
+let themeToggleCount = 0;
+let themeToggleWindowStart = 0;
+let screamLoopActive = false;
+
+const AMBIENCE_VOLUME_SCALE = 0.3;
+const SCREAM_CHANCE = 1 / 500;
+const THEME_TOGGLE_WINDOW_MS = 10_000;
+const THEME_TOGGLE_EASTER_EGG_THRESHOLD = 15;
 
 // DOM Elements
 const clockEl = document.getElementById('clock');
@@ -12,8 +22,12 @@ const tickaudio = document.getElementById('tick-audio')
 const backgroundaudio = document.getElementById('background-audio')
 const manaudio = document.getElementById('man-audio')
 
+manaudio.loop = false;
+
 // Initialize
 function init() {
+    backgroundaudio.volume = Math.max(0, Math.min(1, backgroundaudio.volume * AMBIENCE_VOLUME_SCALE));
+
     if (localStorage.getItem('is24hour') !== null) {
         is24Hour = localStorage.getItem('is24hour') === 'true'
     }
@@ -80,32 +94,78 @@ themeBtn.addEventListener('click', () => {
         themeBtn.textContent = 'Light Mode';
         localStorage.setItem('theme', 'Dark Mode')
     }
+
+    registerThemeToggleForEasterEgg();
 });
 
 async function playTick() {
-
     if (backgroundaudio.paused) {
-        backgroundaudio.play()
+        backgroundaudio.play().catch(() => {})
     }
+
+    startAccurateTicking();
+}
+
+function startAccurateTicking() {
+    if (tickIntervalId || tickStartTimeoutId) {
+        return;
+    }
+
+    const playSingleTick = () => {
+        tickaudio.currentTime = 0;
+        tickaudio.play().catch(() => {});
+    };
 
     const now = new Date();
     const currentMilliseconds = now.getMilliseconds();
     const millisecondsUntillNextSecond = 1000 - currentMilliseconds
-    setTimeout(() => {
-        if (tickaudio.paused) {
-            tickaudio.play()
-        }
+    tickStartTimeoutId = setTimeout(() => {
+        playSingleTick();
+        tickIntervalId = setInterval(playSingleTick, 1000);
+        tickStartTimeoutId = null;
     }, millisecondsUntillNextSecond)
 
 }
 
 async function randomScreamingMan() {
+    if (screamLoopActive) {
+        return;
+    }
+
     setTimeout(() => {
         const number = Math.random()
-        if (number <= 0.010) {
-            manaudio.play()
+        if (number <= SCREAM_CHANCE) {
+            manaudio.currentTime = 0;
+            manaudio.play().catch(() => {})
         }
     }, 1000)
+}
+
+function registerThemeToggleForEasterEgg() {
+    const now = Date.now();
+
+    if (now - themeToggleWindowStart > THEME_TOGGLE_WINDOW_MS) {
+        themeToggleWindowStart = now;
+        themeToggleCount = 0;
+    }
+
+    themeToggleCount += 1;
+
+    if (themeToggleCount >= THEME_TOGGLE_EASTER_EGG_THRESHOLD) {
+        activateScreamLoopEasterEgg();
+    }
+}
+
+function activateScreamLoopEasterEgg() {
+    if (screamLoopActive) {
+        return;
+    }
+
+    screamLoopActive = true;
+    manaudio.loop = true;
+    manaudio.volume = 1;
+    manaudio.currentTime = 0;
+    manaudio.play().catch(() => {});
 }
 
 // Start the app
