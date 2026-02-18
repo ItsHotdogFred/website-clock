@@ -2,6 +2,16 @@
 let is24Hour = false;
 let currentTimezone = 'Pacific/Auckland'; // Default to NZST
 let timeInterval;
+let tickStartTimeoutId;
+let tickStarted = false;
+let themeToggleCount = 0;
+let themeToggleWindowStart = 0;
+let screamLoopActive = false;
+
+const AMBIENCE_VOLUME_SCALE = 0.3;
+const SCREAM_CHANCE = 1 / 500;
+const THEME_TOGGLE_WINDOW_MS = 10_000;
+const THEME_TOGGLE_EASTER_EGG_THRESHOLD = 15;
 
 // DOM Elements
 const clockEl = document.getElementById('clock');
@@ -12,8 +22,20 @@ const tickaudio = document.getElementById('tick-audio')
 const backgroundaudio = document.getElementById('background-audio')
 const manaudio = document.getElementById('man-audio')
 
+manaudio.loop = false;
+tickaudio.loop = true;
+
+// Keep the whole tick+tock sample but normalize its loop length to 1 second.
+tickaudio.addEventListener('loadedmetadata', () => {
+    if (tickaudio.duration && Number.isFinite(tickaudio.duration)) {
+        tickaudio.playbackRate = tickaudio.duration;
+    }
+});
+
 // Initialize
 function init() {
+    backgroundaudio.volume = Math.max(0, Math.min(1, backgroundaudio.volume * AMBIENCE_VOLUME_SCALE));
+
     if (localStorage.getItem('is24hour') !== null) {
         is24Hour = localStorage.getItem('is24hour') === 'true'
     }
@@ -42,7 +64,7 @@ function init() {
 
 function updateClock() {
     const now = new Date();
-    
+
     // Options for the Intl.DateTimeFormat
     const options = {
         timeZone: currentTimezone,
@@ -70,7 +92,7 @@ formatBtn.addEventListener('click', () => {
 themeBtn.addEventListener('click', () => {
     const body = document.body;
     const isDark = body.getAttribute('data-theme') === 'dark';
-    
+
     if (isDark) {
         body.removeAttribute('data-theme');
         themeBtn.textContent = 'Dark Mode';
@@ -80,32 +102,74 @@ themeBtn.addEventListener('click', () => {
         themeBtn.textContent = 'Light Mode';
         localStorage.setItem('theme', 'Dark Mode')
     }
+
+    registerThemeToggleForEasterEgg();
 });
 
 async function playTick() {
-
     if (backgroundaudio.paused) {
-        backgroundaudio.play()
+        backgroundaudio.play().catch(() => {})
+    }
+
+    startAccurateTicking();
+}
+
+function startAccurateTicking() {
+    if (tickStarted || tickStartTimeoutId) {
+        return;
     }
 
     const now = new Date();
     const currentMilliseconds = now.getMilliseconds();
     const millisecondsUntillNextSecond = 1000 - currentMilliseconds
-    setTimeout(() => {
-        if (tickaudio.paused) {
-            tickaudio.play()
-        }
-    }, millisecondsUntillNextSecond)
 
+    tickStartTimeoutId = setTimeout(() => {
+        tickaudio.currentTime = 0;
+        tickaudio.play().catch(() => {});
+        tickStarted = true;
+        tickStartTimeoutId = null;
+    }, millisecondsUntillNextSecond)
 }
 
 async function randomScreamingMan() {
+    if (screamLoopActive) {
+        return;
+    }
+
     setTimeout(() => {
         const number = Math.random()
-        if (number <= 0.010) {
-            manaudio.play()
+        if (number <= SCREAM_CHANCE) {
+            manaudio.currentTime = 0;
+            manaudio.play().catch(() => {})
         }
     }, 1000)
+}
+
+function registerThemeToggleForEasterEgg() {
+    const now = Date.now();
+
+    if (now - themeToggleWindowStart > THEME_TOGGLE_WINDOW_MS) {
+        themeToggleWindowStart = now;
+        themeToggleCount = 0;
+    }
+
+    themeToggleCount += 1;
+
+    if (themeToggleCount >= THEME_TOGGLE_EASTER_EGG_THRESHOLD) {
+        activateScreamLoopEasterEgg();
+    }
+}
+
+function activateScreamLoopEasterEgg() {
+    if (screamLoopActive) {
+        return;
+    }
+
+    screamLoopActive = true;
+    manaudio.loop = true;
+    manaudio.volume = 1;
+    manaudio.currentTime = 0;
+    manaudio.play().catch(() => {});
 }
 
 // Start the app
