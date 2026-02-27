@@ -2,8 +2,10 @@
 let is24Hour = false;
 let currentTimezone = 'Pacific/Auckland'; // Default to NZST
 let timeInterval;
+let clockStartTimeoutId;
 let tickIntervalId;
 let tickStartTimeoutId;
+let playTikNext = true;
 let themeToggleCount = 0;
 let themeToggleWindowStart = 0;
 let screamLoopActive = false;
@@ -12,13 +14,15 @@ const AMBIENCE_VOLUME_SCALE = 0.3;
 const SCREAM_CHANCE = 1 / 500;
 const THEME_TOGGLE_WINDOW_MS = 10_000;
 const THEME_TOGGLE_EASTER_EGG_THRESHOLD = 15;
+const TICK_AUDIO_LEAD_MS = 250;
 
 // DOM Elements
 const clockEl = document.getElementById('clock');
 const locationEl = document.getElementById('location');
 const formatBtn = document.getElementById('format-toggle');
 const themeBtn = document.getElementById('theme-toggle');
-const tickaudio = document.getElementById('tick-audio')
+const tikAudio = document.getElementById('tik-audio')
+const tokAudio = document.getElementById('tok-audio')
 const backgroundaudio = document.getElementById('background-audio')
 const manaudio = document.getElementById('man-audio')
 
@@ -51,7 +55,7 @@ function init() {
     locationEl.textContent = currentTimezone.replace(/_/g, ' ');
 
     updateClock(); // Initial call
-    timeInterval = setInterval(updateClock, 1000); // Update every second
+    startAccurateClockUpdates();
 }
 
 function updateClock() {
@@ -106,19 +110,39 @@ async function playTick() {
     startAccurateTicking();
 }
 
+function startAccurateClockUpdates() {
+    if (timeInterval || clockStartTimeoutId) {
+        return;
+    }
+
+    const now = new Date();
+    const currentMilliseconds = now.getMilliseconds();
+    const millisecondsUntilNextSecond = 1000 - currentMilliseconds;
+    clockStartTimeoutId = setTimeout(() => {
+        updateClock();
+        timeInterval = setInterval(updateClock, 1000);
+        clockStartTimeoutId = null;
+    }, millisecondsUntilNextSecond)
+}
+
 function startAccurateTicking() {
     if (tickIntervalId || tickStartTimeoutId) {
         return;
     }
 
     const playSingleTick = () => {
-        tickaudio.currentTime = 0;
-        tickaudio.play().catch(() => {});
+        const currentTickAudio = playTikNext ? tikAudio : tokAudio;
+        currentTickAudio.currentTime = 0;
+        currentTickAudio.play().catch(() => {});
+        playTikNext = !playTikNext;
     };
 
     const now = new Date();
     const currentMilliseconds = now.getMilliseconds();
-    const millisecondsUntillNextSecond = 1000 - currentMilliseconds
+    let millisecondsUntillNextSecond = (1000 - currentMilliseconds) - TICK_AUDIO_LEAD_MS;
+    if (millisecondsUntillNextSecond <= 0) {
+        millisecondsUntillNextSecond += 1000;
+    }
     tickStartTimeoutId = setTimeout(() => {
         playSingleTick();
         tickIntervalId = setInterval(playSingleTick, 1000);
