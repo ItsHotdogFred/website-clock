@@ -16,7 +16,9 @@
 
         <!-- Controls -->
         <div class="controls">
-            <button id="mode-toggle" class="btn">Stopwatch</button>
+            <button id="clock-mode" class="btn hidden">Clock</button>
+            <button id="stopwatch-mode" class="btn">Stopwatch</button>
+            <button id="timer-mode" class="btn">Timer</button>
             <button id="format-toggle" class="btn">Switch to 24h</button>
             <button id="theme-toggle" class="btn">Dark Mode</button>
             <button onclick="playTick()" class="btn">Play Sound</button>
@@ -24,8 +26,20 @@
 
         <div id="stopwatch-controls" class="controls stopwatch-controls hidden">
             <button id="stopwatch-start" class="btn">Start</button>
+            <button id="stopwatch-lap" class="btn">Lap</button>
             <button id="stopwatch-reset" class="btn">Reset</button>
         </div>
+
+        <div id="timer-controls" class="timer-controls hidden">
+            <input id="timer-minutes" class="timer-input" type="number" min="0" max="999" value="1" aria-label="Timer minutes">
+            <span class="timer-separator">minutes</span>
+            <div class="controls timer-buttons">
+                <button id="timer-start" class="btn">Start</button>
+                <button id="timer-reset" class="btn">Reset</button>
+            </div>
+        </div>
+
+        <ol id="lap-list" class="lap-list hidden"></ol>
     </div>
 
     <audio id="tik-audio" preload="auto">

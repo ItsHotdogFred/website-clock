@@ -69,6 +69,49 @@ body {
     margin-top: 1rem;
 }
 
+.timer-controls {
+    margin-top: 1rem;
+}
+
+.timer-input {
+    width: 90px;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 30px;
+    background-color: var(--btn-bg);
+    color: var(--btn-text);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.timer-separator {
+    display: inline-block;
+    margin-left: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.timer-buttons {
+    margin-top: 1rem;
+}
+
+.lap-list {
+    width: min(420px, calc(100vw - 2rem));
+    max-height: 160px;
+    margin: 1.5rem auto 0;
+    overflow-y: auto;
+    list-style-position: inside;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.75;
+}
+
+.lap-list li {
+    padding: 0.4rem 0;
+    border-top: 1px solid color-mix(in srgb, var(--text-color) 14%, transparent);
+}
+
 .btn {
     padding: 10px 20px;
     border: none;
@@ -167,6 +210,10 @@ body {
 
     .controls {
         padding: 0 1rem;
+    }
+
+    .location-text {
+        font-size: 1.4rem;
     }
 
     .settings-row {
