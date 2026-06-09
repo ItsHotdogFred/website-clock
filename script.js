@@ -9,6 +9,10 @@ let playTikNext = true;
 let themeToggleCount = 0;
 let themeToggleWindowStart = 0;
 let screamLoopActive = false;
+let isStopwatchMode = false;
+let stopwatchElapsedMs = 0;
+let stopwatchStartedAt = 0;
+let stopwatchIntervalId;
 
 const AMBIENCE_VOLUME_SCALE = 0.3;
 const SCREAM_CHANCE = 1 / 500;
@@ -19,8 +23,12 @@ const TICK_AUDIO_LEAD_MS = 250;
 // DOM Elements
 const clockEl = document.getElementById('clock');
 const locationEl = document.getElementById('location');
+const modeBtn = document.getElementById('mode-toggle');
 const formatBtn = document.getElementById('format-toggle');
 const themeBtn = document.getElementById('theme-toggle');
+const stopwatchControlsEl = document.getElementById('stopwatch-controls');
+const stopwatchStartBtn = document.getElementById('stopwatch-start');
+const stopwatchResetBtn = document.getElementById('stopwatch-reset');
 const tikAudio = document.getElementById('tik-audio')
 const tokAudio = document.getElementById('tok-audio')
 const backgroundaudio = document.getElementById('background-audio')
@@ -59,6 +67,10 @@ function init() {
 }
 
 function updateClock() {
+    if (isStopwatchMode) {
+        return;
+    }
+
     const now = new Date();
     
     // Options for the Intl.DateTimeFormat
@@ -82,6 +94,44 @@ formatBtn.addEventListener('click', () => {
     formatBtn.textContent = is24Hour ? 'Switch to 12h' : 'Switch to 24h';
     localStorage.setItem('is24hour', is24Hour)
     updateClock();
+});
+
+modeBtn.addEventListener('click', () => {
+    isStopwatchMode = !isStopwatchMode;
+
+    if (isStopwatchMode) {
+        modeBtn.textContent = 'Clock';
+        locationEl.textContent = 'Stopwatch';
+        formatBtn.classList.add('hidden');
+        stopwatchControlsEl.classList.remove('hidden');
+        updateStopwatchDisplay();
+        return;
+    }
+
+    pauseStopwatch();
+    modeBtn.textContent = 'Stopwatch';
+    locationEl.textContent = currentTimezone.replace(/_/g, ' ');
+    formatBtn.classList.remove('hidden');
+    stopwatchControlsEl.classList.add('hidden');
+    updateClock();
+});
+
+stopwatchStartBtn.addEventListener('click', () => {
+    if (stopwatchIntervalId) {
+        pauseStopwatch();
+        return;
+    }
+
+    stopwatchStartedAt = Date.now() - stopwatchElapsedMs;
+    stopwatchStartBtn.textContent = 'Pause';
+    updateStopwatchDisplay();
+    stopwatchIntervalId = setInterval(updateStopwatchDisplay, 100);
+});
+
+stopwatchResetBtn.addEventListener('click', () => {
+    pauseStopwatch();
+    stopwatchElapsedMs = 0;
+    updateStopwatchDisplay();
 });
 
 // Theme Toggle Handler
@@ -149,6 +199,30 @@ function startAccurateTicking() {
         tickStartTimeoutId = null;
     }, millisecondsUntillNextSecond)
 
+}
+
+function pauseStopwatch() {
+    if (!stopwatchIntervalId) {
+        stopwatchStartBtn.textContent = 'Start';
+        return;
+    }
+
+    clearInterval(stopwatchIntervalId);
+    stopwatchIntervalId = null;
+    stopwatchElapsedMs = Date.now() - stopwatchStartedAt;
+    stopwatchStartBtn.textContent = 'Start';
+}
+
+function updateStopwatchDisplay() {
+    const elapsedMs = stopwatchIntervalId ? Date.now() - stopwatchStartedAt : stopwatchElapsedMs;
+    const totalTenths = Math.floor(elapsedMs / 100);
+    const tenths = totalTenths % 10;
+    const totalSeconds = Math.floor(totalTenths / 10);
+    const seconds = totalSeconds % 60;
+    const minutes = Math.floor(totalSeconds / 60) % 60;
+    const hours = Math.floor(totalSeconds / 3600);
+
+    clockEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${tenths}`;
 }
 
 async function randomScreamingMan() {
