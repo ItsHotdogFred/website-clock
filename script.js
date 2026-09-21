@@ -28,6 +28,8 @@ const TICK_AUDIO_LEAD_MS = 250;
 
 // DOM Elements
 const clockEl = document.getElementById('clock');
+const clockSecondsEl = document.getElementById('clock-seconds');
+const clockAmpmEl = document.getElementById('clock-ampm');
 const locationEl = document.getElementById('location');
 const clockModeBtn = document.getElementById('clock-mode');
 const stopwatchModeBtn = document.getElementById('stopwatch-mode');
@@ -72,10 +74,7 @@ function init() {
         console.log("Timezone detection failed, using default NZST");
     }
 
-    // Update location text display to show clean timezone name
-    // Replacing underscores with spaces for better readability
-    locationEl.textContent = currentTimezone.replace(/_/g, ' ');
-
+    updateDateDisplay();
     updateClock(); // Initial call
     startAccurateClockUpdates();
 }
@@ -86,7 +85,7 @@ function updateClock() {
     }
 
     const now = new Date();
-    
+
     // Options for the Intl.DateTimeFormat
     const options = {
         timeZone: currentTimezone,
@@ -97,9 +96,31 @@ function updateClock() {
     };
 
     const formatter = new Intl.DateTimeFormat('en-US', options);
-    clockEl.textContent = formatter.format(now);
+    const parts = formatter.formatToParts(now);
+    const partValue = (type) => parts.find((part) => part.type === type)?.value ?? '';
 
+    clockEl.textContent = `${partValue('hour')}:${partValue('minute')}`;
+    clockSecondsEl.textContent = partValue('second');
+    clockAmpmEl.textContent = is24Hour ? '' : partValue('dayPeriod').toLowerCase().replace(/^([ap])m$/, '$1.m.');
+    clockAmpmEl.classList.toggle('hidden', is24Hour);
+
+    updateDateDisplay();
     randomScreamingMan()
+}
+
+function updateDateDisplay() {
+    const options = {
+        timeZone: currentTimezone,
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    };
+
+    const parts = new Intl.DateTimeFormat('en-GB', options).formatToParts(new Date());
+    const partValue = (type) => parts.find((part) => part.type === type)?.value ?? '';
+
+    locationEl.textContent = `${partValue('weekday')}, ${partValue('day')} ${partValue('month')} ${partValue('year')}`;
 }
 
 // Format Toggle Handler
@@ -268,8 +289,10 @@ function switchMode(mode) {
     timerControlsEl.classList.toggle('hidden', mode !== 'timer');
     lapListEl.classList.toggle('hidden', mode !== 'stopwatch' || lapCount === 0);
 
+    document.getElementById('clock-suffix').classList.toggle('hidden', mode !== 'clock');
+
     if (mode === 'clock') {
-        locationEl.textContent = currentTimezone.replace(/_/g, ' ');
+        updateDateDisplay();
         updateClock();
     } else if (mode === 'stopwatch') {
         locationEl.textContent = 'Stopwatch';

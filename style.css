@@ -7,11 +7,13 @@
 }
 
 :root {
-    --bg-color: #f4f4f9;
-    --text-color: #333333;
-    --accent-color: #007AFF; /* Minimal blue */
-    --btn-bg: #e0e0e0;
-    --btn-text: #333;
+    --bg-color: #1e1e1e;
+    --text-color: #f4f4f9;
+    --accent-color: #f6c744; /* Split-flap gold */
+    --seconds-color: #ffffff;
+    --ampm-color: #8a8783;
+    --btn-bg: #333;
+    --btn-text: #f4f4f9;
     --transition-speed: 0.3s;
 }
 
@@ -40,14 +42,19 @@ body {
 }
 
 .container {
-    text-align: center;
+    text-align: left;
+}
+
+.clock-row {
+    display: inline-flex;
+    align-items: flex-start;
 }
 
 .location-text {
-    font-size: 2.4rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    opacity: 0.7;
+    font-size: 1.6rem;
+    font-weight: 400;
+    opacity: 0.95;
+    margin-top: 0.25rem;
     margin-bottom: 1rem;
 }
 
@@ -55,7 +62,29 @@ body {
     font-family: 'Timetravler', sans-serif;
     font-size: 12rem;
     font-variant-numeric: tabular-nums; /* Keeps numbers from jumping */
-    margin-bottom: 2rem;
+    color: var(--accent-color);
+    line-height: 1;
+}
+
+.clock-suffix {
+    display: inline-flex;
+    flex-direction: column;
+    margin-top: 0.6em;
+    margin-left: 0.15em;
+    line-height: 1.05;
+}
+
+.clock-seconds {
+    font-family: 'Timetravler', sans-serif;
+    font-size: 2.6rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--seconds-color);
+}
+
+.clock-ampm {
+    font-family: 'Timetravler', sans-serif;
+    font-size: 2.2rem;
+    color: var(--ampm-color);
 }
 
 .controls {
@@ -208,12 +237,20 @@ body {
         font-size: 3.5rem;
     }
 
+    .clock-seconds {
+        font-size: 1rem;
+    }
+
+    .clock-ampm {
+        font-size: 0.85rem;
+    }
+
     .controls {
         padding: 0 1rem;
     }
 
     .location-text {
-        font-size: 1.4rem;
+        font-size: 1rem;
     }
 
     .settings-row {
