@@ -7,19 +7,32 @@
 }
 
 :root {
-    --bg-color: #1e1e1e;
-    --text-color: #f4f4f9;
-    --accent-color: #f6c744; /* Split-flap gold */
-    --seconds-color: #ffffff;
-    --ampm-color: #8a8783;
-    --btn-bg: #333;
-    --btn-text: #f4f4f9;
+    --bg-color: #f4f4f9;
+    --text-color: #333333;
+    --accent-color: #007AFF; /* Minimal blue */
+    --clock-color: var(--text-color);
+    --seconds-color: var(--text-color);
+    --ampm-color: var(--text-color);
+    --btn-bg: #e0e0e0;
+    --btn-text: #333;
     --transition-speed: 0.3s;
 }
 
 [data-theme="dark"] {
     --bg-color: #1a1a1a;
     --text-color: #f4f4f9;
+    --btn-bg: #333;
+    --btn-text: #f4f4f9;
+}
+
+/* Split-flap gold theme (Ctrl+N) */
+[data-theme="flip"] {
+    --bg-color: #1e1e1e;
+    --text-color: #f4f4f9;
+    --accent-color: #f6c744;
+    --clock-color: #f6c744; /* Split-flap gold */
+    --seconds-color: #ffffff;
+    --ampm-color: #8a8783;
     --btn-bg: #333;
     --btn-text: #f4f4f9;
 }
@@ -62,7 +75,7 @@ body {
     font-family: 'Timetravler', sans-serif;
     font-size: 12rem;
     font-variant-numeric: tabular-nums; /* Keeps numbers from jumping */
-    color: var(--accent-color);
+    color: var(--clock-color);
     line-height: 1;
 }
 
@@ -85,6 +98,11 @@ body {
     font-family: 'Timetravler', sans-serif;
     font-size: 2.2rem;
     color: var(--ampm-color);
+    opacity: 0.7;
+}
+
+[data-theme="flip"] .clock-ampm {
+    opacity: 1;
 }
 
 .controls {

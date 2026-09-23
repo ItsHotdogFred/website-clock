@@ -19,6 +19,7 @@ let timerRemainingMs = 60_000;
 let timerEndsAt = 0;
 let timerIntervalId;
 let timerFinished = false;
+let flipThemeActive = false;
 
 const AMBIENCE_VOLUME_SCALE = 0.3;
 const SCREAM_CHANCE = 1 / 500;
@@ -63,6 +64,10 @@ function init() {
         if (localStorage.getItem('theme') === 'Dark Mode') {
             document.body.setAttribute('data-theme', 'dark');
         }
+    }
+    if (localStorage.getItem('flipTheme') === 'true') {
+        flipThemeActive = true;
+        document.body.setAttribute('data-theme', 'flip');
     }
     // Attempt to detect user's actual timezone
     try {
@@ -215,7 +220,10 @@ timerResetBtn.addEventListener('click', () => {
 themeBtn.addEventListener('click', () => {
     const body = document.body;
     const isDark = body.getAttribute('data-theme') === 'dark';
-    
+
+    flipThemeActive = false;
+    localStorage.setItem('flipTheme', 'false');
+
     if (isDark) {
         body.removeAttribute('data-theme');
         themeBtn.textContent = 'Dark Mode';
@@ -228,6 +236,28 @@ themeBtn.addEventListener('click', () => {
 
     registerThemeToggleForEasterEgg();
 });
+
+// Ctrl+N (or Cmd+N) toggles the split-flap gold theme
+document.addEventListener('keydown', (event) => {
+    const key = event.key.toLowerCase();
+    if ((event.ctrlKey || event.metaKey) && key === 'n') {
+        event.preventDefault();
+        toggleFlipTheme();
+    }
+});
+
+function toggleFlipTheme() {
+    flipThemeActive = !flipThemeActive;
+    localStorage.setItem('flipTheme', flipThemeActive);
+
+    if (flipThemeActive) {
+        document.body.setAttribute('data-theme', 'flip');
+    } else if (localStorage.getItem('theme') === 'Dark Mode') {
+        document.body.setAttribute('data-theme', 'dark');
+    } else {
+        document.body.removeAttribute('data-theme');
+    }
+}
 
 async function playTick() {
     if (backgroundaudio.paused) {
