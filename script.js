@@ -237,11 +237,28 @@ themeBtn.addEventListener('click', () => {
     registerThemeToggleForEasterEgg();
 });
 
-// Ctrl+N (or Cmd+N) toggles the split-flap gold theme
+// Typing "new" anywhere on the page toggles the split-flap gold theme
+const THEME_EASTER_EGG_WORD = 'new';
+let typedThemeBuffer = '';
+
 document.addEventListener('keydown', (event) => {
-    const key = event.key.toLowerCase();
-    if ((event.ctrlKey || event.metaKey) && key === 'n') {
-        event.preventDefault();
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+    }
+
+    const target = event.target;
+    if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+    }
+
+    if (event.key.length !== 1) {
+        return;
+    }
+
+    typedThemeBuffer = (typedThemeBuffer + event.key.toLowerCase()).slice(-THEME_EASTER_EGG_WORD.length);
+
+    if (typedThemeBuffer === THEME_EASTER_EGG_WORD) {
+        typedThemeBuffer = '';
         toggleFlipTheme();
     }
 });
@@ -257,6 +274,25 @@ function toggleFlipTheme() {
     } else {
         document.body.removeAttribute('data-theme');
     }
+
+    playThemeTransition();
+}
+
+function playThemeTransition() {
+    const overlay = document.getElementById('theme-flash-overlay');
+    const body = document.body;
+
+    overlay.classList.remove('active');
+    body.classList.remove('theme-transition');
+    void overlay.offsetWidth;
+
+    overlay.classList.add('active');
+    body.classList.add('theme-transition');
+
+    setTimeout(() => {
+        overlay.classList.remove('active');
+        body.classList.remove('theme-transition');
+    }, 900);
 }
 
 async function playTick() {

@@ -21,11 +21,14 @@
 [data-theme="dark"] {
     --bg-color: #1a1a1a;
     --text-color: #f4f4f9;
+    --clock-color: var(--text-color);
+    --seconds-color: var(--text-color);
+    --ampm-color: var(--text-color);
     --btn-bg: #333;
     --btn-text: #f4f4f9;
 }
 
-/* Split-flap gold theme (Ctrl+N) */
+/* Split-flap gold theme (type "new" to toggle) */
 [data-theme="flip"] {
     --bg-color: #1e1e1e;
     --text-color: #f4f4f9;
@@ -52,10 +55,59 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
 .container {
     text-align: left;
+}
+
+/* Over-the-top flip-theme transition */
+#theme-flash-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle, #ffffff 0%, #f6c744 45%, transparent 75%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 999;
+    mix-blend-mode: screen;
+}
+
+#theme-flash-overlay.active {
+    animation: theme-flash-overlay 0.9s ease-out;
+}
+
+@keyframes theme-flash-overlay {
+    0% { opacity: 0; transform: scale(0.3); }
+    12% { opacity: 1; transform: scale(1.6); }
+    35% { opacity: 0.85; transform: scale(2.2); }
+    100% { opacity: 0; transform: scale(3.2); }
+}
+
+body.theme-transition .container {
+    animation: theme-container-spin 0.9s cubic-bezier(.36, 1.9, .3, 1);
+}
+
+@keyframes theme-container-spin {
+    0% { transform: scale(1) rotate(0deg); filter: blur(0); }
+    20% { transform: scale(1.25) rotate(-6deg); filter: blur(2px); }
+    45% { transform: scale(0.85) rotate(8deg); filter: blur(1px); }
+    65% { transform: scale(1.1) rotate(-4deg); filter: blur(0); }
+    85% { transform: scale(0.97) rotate(2deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+body.theme-transition {
+    animation: theme-body-shake 0.9s ease;
+}
+
+@keyframes theme-body-shake {
+    0%, 100% { background-color: var(--bg-color); }
+    10% { filter: brightness(2.5) saturate(1.5); }
+    30% { filter: brightness(0.6); }
+    50% { filter: brightness(1.8); }
+    70% { filter: brightness(0.85); }
+    100% { filter: brightness(1); }
 }
 
 .clock-row {
