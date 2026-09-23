@@ -79,7 +79,7 @@ function init() {
         console.log("Timezone detection failed, using default NZST");
     }
 
-    updateDateDisplay();
+    updateLocationDisplay();
     updateClock(); // Initial call
     startAccurateClockUpdates();
 }
@@ -101,16 +101,30 @@ function updateClock() {
     };
 
     const formatter = new Intl.DateTimeFormat('en-US', options);
-    const parts = formatter.formatToParts(now);
-    const partValue = (type) => parts.find((part) => part.type === type)?.value ?? '';
 
-    clockEl.textContent = `${partValue('hour')}:${partValue('minute')}`;
-    clockSecondsEl.textContent = partValue('second');
-    clockAmpmEl.textContent = is24Hour ? '' : partValue('dayPeriod').toLowerCase().replace(/^([ap])m$/, '$1.m.');
-    clockAmpmEl.classList.toggle('hidden', is24Hour);
+    if (flipThemeActive) {
+        const parts = formatter.formatToParts(now);
+        const partValue = (type) => parts.find((part) => part.type === type)?.value ?? '';
 
-    updateDateDisplay();
+        clockEl.textContent = `${partValue('hour')}:${partValue('minute')}`;
+        clockSecondsEl.textContent = partValue('second');
+        clockAmpmEl.textContent = is24Hour ? '' : partValue('dayPeriod').toLowerCase().replace(/^([ap])m$/, '$1.m.');
+        clockAmpmEl.classList.toggle('hidden', is24Hour);
+        updateDateDisplay();
+    } else {
+        clockEl.textContent = formatter.format(now);
+    }
+
     randomScreamingMan()
+}
+
+// Shows the timezone (original look) or today's date (split-flap theme)
+function updateLocationDisplay() {
+    if (flipThemeActive) {
+        updateDateDisplay();
+    } else {
+        locationEl.textContent = currentTimezone.replace(/_/g, ' ');
+    }
 }
 
 function updateDateDisplay() {
@@ -275,6 +289,11 @@ function toggleFlipTheme() {
         document.body.removeAttribute('data-theme');
     }
 
+    if (currentMode === 'clock') {
+        updateLocationDisplay();
+        updateClock();
+    }
+
     playThemeTransition();
 }
 
@@ -358,7 +377,7 @@ function switchMode(mode) {
     document.getElementById('clock-suffix').classList.toggle('hidden', mode !== 'clock');
 
     if (mode === 'clock') {
-        updateDateDisplay();
+        updateLocationDisplay();
         updateClock();
     } else if (mode === 'stopwatch') {
         locationEl.textContent = 'Stopwatch';

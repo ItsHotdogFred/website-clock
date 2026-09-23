@@ -10,9 +10,6 @@
     --bg-color: #f4f4f9;
     --text-color: #333333;
     --accent-color: #007AFF; /* Minimal blue */
-    --clock-color: var(--text-color);
-    --seconds-color: var(--text-color);
-    --ampm-color: var(--text-color);
     --btn-bg: #e0e0e0;
     --btn-text: #333;
     --transition-speed: 0.3s;
@@ -21,9 +18,6 @@
 [data-theme="dark"] {
     --bg-color: #1a1a1a;
     --text-color: #f4f4f9;
-    --clock-color: var(--text-color);
-    --seconds-color: var(--text-color);
-    --ampm-color: var(--text-color);
     --btn-bg: #333;
     --btn-text: #f4f4f9;
 }
@@ -59,6 +53,10 @@ body {
 }
 
 .container {
+    text-align: center;
+}
+
+[data-theme="flip"] .container {
     text-align: left;
 }
 
@@ -116,10 +114,10 @@ body.theme-transition {
 }
 
 .location-text {
-    font-size: 1.6rem;
-    font-weight: 400;
-    opacity: 0.95;
-    margin-top: 0.25rem;
+    font-size: 2.4rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.7;
     margin-bottom: 1rem;
 }
 
@@ -127,16 +125,36 @@ body.theme-transition {
     font-family: 'Timetravler', sans-serif;
     font-size: 12rem;
     font-variant-numeric: tabular-nums; /* Keeps numbers from jumping */
-    color: var(--clock-color);
+    margin-bottom: 2rem;
     line-height: 1;
 }
 
+/* Split-flap gold theme layout (type "new" to toggle) */
+[data-theme="flip"] .location-text {
+    font-size: 1.6rem;
+    font-weight: 400;
+    letter-spacing: normal;
+    text-transform: none;
+    opacity: 0.95;
+    margin-top: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+[data-theme="flip"] .clock-text {
+    color: var(--clock-color);
+    margin-bottom: 0;
+}
+
 .clock-suffix {
-    display: inline-flex;
+    display: none;
     flex-direction: column;
     margin-top: 0.6em;
     margin-left: 0.15em;
     line-height: 1.05;
+}
+
+[data-theme="flip"] .clock-suffix:not(.hidden) {
+    display: inline-flex;
 }
 
 .clock-seconds {
@@ -307,20 +325,24 @@ body.theme-transition {
         font-size: 3.5rem;
     }
 
+    .controls {
+        padding: 0 1rem;
+    }
+
+    .location-text {
+        font-size: 1.4rem;
+    }
+
+    [data-theme="flip"] .location-text {
+        font-size: 1rem;
+    }
+
     .clock-seconds {
         font-size: 1rem;
     }
 
     .clock-ampm {
         font-size: 0.85rem;
-    }
-
-    .controls {
-        padding: 0 1rem;
-    }
-
-    .location-text {
-        font-size: 1rem;
     }
 
     .settings-row {
